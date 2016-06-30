@@ -170,11 +170,13 @@ endif
 # $(3) - command description (printed if command fails)
 ifdef VERBOSE
 define SHLOG
-  $(1) || (echo -e "\e[1;33m$(3) failed. No log file generated. (Run make without VERBOSE if log is needed.)\e[0m"; exit 1;)
+  $(1)
+#  $(1) || (echo -e "\e[1;33m$(3) failed. No log file generated. (Run make without VERBOSE if log is needed.)\e[0m"; exit 1;)
 endef
 else
 define SHLOG
-  ( mkdir -p $$(dirname $(2)) ; $(1) 2>&1 | tee $(2) >/dev/null ; ( exit $${PIPESTATUS[0]} ) ) || (echo -e "\e[1;33m$(3) failed. See $(2) for details.\e[0m"; exit 1;)
+  $(1)
+#  ( mkdir -p $$(dirname $(2)) ; $(1) 2>&1 | tee $(2) >/dev/null ; ( exit $${PIPESTATUS[0]} ) ) || (echo -e "\e[1;33m$(3) failed. See $(2) for details.\e[0m"; exit 1;)
 endef
 endif
 
@@ -184,7 +186,8 @@ ifdef NINJA
   BUILD_COMMAND := ninja -v
 else
   BUILD_GENERATOR := "Unix Makefiles"
-  BUILD_COMMAND := $(MAKE) -w VERBOSE=1
+  BUILD_COMMAND := $(MAKE)
+# VERBOSE=1
 endif
 
 # Targets to prepare the build directories
