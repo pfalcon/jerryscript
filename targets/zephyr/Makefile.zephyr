@@ -105,11 +105,14 @@ LIBS = $(TYPE).external$(VARIETY)-entry $(PREFIX).jerry-core $(PREFIX).jerry-lib
 BUILD_CONFIG = O="$(OUTPUT)/zephyr" V=$(V) USER_LIBS="$(LIBS)" USER_LIB_INCLUDE_DIR="-L $(CURDIR)/$(OUTPUT)" TARGET_ZEPHYR=$(TARGET_ZEPHYR)
 
 .PHONY: all
+# Force rebuild of both jerry lib and zephyr bin on each make, so they could catch any
+# changed sources.
+.PHONY: $(EXTERNAL_LIB) $(ZEPHYR_BIN)
 all: jerry zephyr
 
-$(EXTERNAL_LIB):
+$(INTERM)/Makefile:
 ifdef V
-	@echo "- JERRY SCRIPT -------------------------------------------------"
+	@echo "- JERRY SCRIPT CMake --------------------------------------------"
 endif
 	mkdir -p $(INTERM)
 	mkdir -p $(OUTPUT)
@@ -128,6 +131,10 @@ endif
 	 -DCMAKE_TOOLCHAIN_FILE=build/configs/toolchain_external.cmake \
 	 -DEXTERNAL_BUILD_ENTRY_FILE=$(TARGET_ZEPHYR_SRC_DIR)/jerry-entry.c
 
+$(EXTERNAL_LIB): $(INTERM)/Makefile
+ifdef V
+	@echo "- JERRY SCRIPT Make --------------------------------------------"
+endif
 	make -C $(INTERM) $(TYPE).external$(VARIETY) V=1
 	cp `cat $(INTERM)/$(TYPE).external$(VARIETY)/list` $(OUTPUT)/.
 	cp  $(EXTERNAL_LIB) $(OUTPUT)/.
