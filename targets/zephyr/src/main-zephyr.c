@@ -58,6 +58,15 @@ static int shell_cmd_handler (char *source_buffer)
   return 0;
 } /* shell_cmd_handler */
 
+static jerry_value_t foo_handler (const jerry_value_t function_obj_val,
+                  const jerry_value_t this_val,
+                  const jerry_value_t args_p[],
+                  const jerry_length_t args_cnt)
+{
+    printf ("foo!\n");
+    return jerry_create_undefined ();
+}
+
 void main (void)
 {
   uint32_t zephyr_ver = sys_kernel_version_get ();
@@ -70,6 +79,12 @@ void main (void)
   zephyr_getline_init ();
   jerry_init (JERRY_INIT_EMPTY);
   jerry_value_t global_obj_val = jerry_get_global_object ();
+
+  jerry_value_t func_val = jerry_create_external_function (foo_handler);
+  jerry_value_t prop_name = jerry_create_string ("foo");
+  jerry_set_property (global_obj_val, prop_name, func_val);
+  jerry_release_value (prop_name);
+  jerry_release_value (func_val);
 
   jerry_value_t print_func_name_val = jerry_create_string ((jerry_char_t *) "print");
   print_function = jerry_get_property (global_obj_val, print_func_name_val);
